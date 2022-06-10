@@ -1,7 +1,7 @@
 ---
 title: "Squid_game_sentiment_analysis"
-author: "18F-0178_M Mustafa Ali"
-date: "1/16/2022"
+author: "18F-0203-Muhammad Ahmad"
+date: "6/7/2022"
 output: pdf_document
 ---
 
