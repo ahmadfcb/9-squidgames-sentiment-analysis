@@ -1,0 +1,74 @@
+---
+title: "Squid_game_sentiment_analysis"
+author: "18F-0178_M Mustafa Ali"
+date: "1/16/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(SentimentAnalysis)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(wordcloud2)
+library(wordcloud)
+library(RColorBrewer)
+library(tm)
+data<-read.csv('SquidGame.csv')
+head(data)
+data<-subset(data, select = -c(user_description,user_location) )
+newdata<-data[c(0:2000),]   
+
+
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+
+
+text<-newdata$text
+docs <- Corpus(VectorSource(text))
+docs <- docs %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace)
+docs <- tm_map(docs, content_transformer(tolower))
+docs <- tm_map(docs, removeWords, stopwords("english"))
+
+dtm <- TermDocumentMatrix(docs) 
+matrix <- as.matrix(dtm) 
+words <- sort(rowSums(matrix),decreasing=TRUE) 
+df <- data.frame(word = names(words),freq=words)
+
+set.seed(1234)
+
+wordcloud(words = df$word, freq = df$freq, min.freq = 1,max.words=800, random.order=FALSE, rot.per=0.35,colors=brewer.pal(8, "Dark2"))
+
+
+
+sentimentanalysis<-analyzeSentiment(newdata$text)
+newdata$Sentiment_Score<-sentimentanalysis$SentimentQDAP
+newdata$Sentiment<-convertToDirection(sentimentanalysis$SentimentQDAP)
+Positive= sum(newdata$Sentiment=='positive')
+Negative= sum(newdata$Sentiment=='negative')
+Neutral<-sum(newdata$Sentiment=="neutral")
+paste("Positive: ",Positive)
+paste("Negative: ",Negative)
+paste("Neutral:  ",Neutral)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
